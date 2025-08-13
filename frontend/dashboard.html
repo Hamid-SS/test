@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | Менеджер паролей</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>KeepPass</h2>
+    <nav>
+      <a href="dashboard.html" class="active">Пароли</a>
+      <a href="#">Генератор</a>
+      <a href="#">Настройки</a>
+    </nav>
+    <div class="logout" onclick="logout()">Выйти</div>
+  </div>
+  <div class="main">
+    <div class="dashboard-header">
+      <h1>Ваши сохранённые пароли</h1>
+      <button onclick="showAddForm()">Добавить запись</button>
+    </div>
+    <table class="vault-table">
+      <thead>
+        <tr>
+          <th>Название</th>
+          <th>Логин</th>
+          <th>Пароль</th>
+          <th>URL</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody id="vaultBody"></tbody>
+    </table>
+    <div id="addEntryModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" onclick="hideAddForm()">&times;</span>
+        <h3>Добавить новую запись</h3>
+        <form id="addEntryForm">
+          <input type="text" id="title" placeholder="Название" required />
+          <input type="text" id="entryUsername" placeholder="Логин" required />
+          <input type="text" id="entryPassword" placeholder="Пароль" required />
+          <input type="text" id="url" placeholder="URL" />
+          <button type="submit">Сохранить</button>
+        </form>
+        <div id="entryError" class="error"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    async function loadEntries() {
+      const res = await fetch('http://localhost:3000/api/entries', {
+        credentials: 'include'
+      });
+      if(res.status === 401) {
+        window.location.href = 'login.html';
+        return;
+      }
+      const entries = await res.json();
+      const vaultBody = document.getElementById('vaultBody');
+      vaultBody.innerHTML = '';
+      entries.forEach(entry => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${entry.title}</td>
+          <td>${entry.username}</td>
+          <td>••••••••</td>
+          <td>${entry.url || ''}</td>
+          <td class="actions">
+            <button onclick="deleteEntry(${entry.id})" class="delete">Удалить</button>
+          </td>
+        `;
+        vaultBody.appendChild(tr);
+      });
+    }
+    loadEntries();
+
+    function showAddForm() {
+      document.getElementById('addEntryModal').style.display = 'block';
+    }
+    function hideAddForm() {
+      document.getElementById('addEntryModal').style.display = 'none';
+      document.getElementById('entryError').textContent = '';
+      document.getElementById('addEntryForm').reset();
+    }
+    document.getElementById('addEntryForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const entryUsername = document.getElementById('entryUsername').value;
+      const entryPassword = document.getElementById('entryPassword').value;
+      const url = document.getElementById('url').value;
+      const res = await fetch('http://localhost:3000/api/entries', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({title, username: entryUsername, password: entryPassword, url})
+      });
+      if(res.status !== 200) {
+        const data = await res.json();
+        document.getElementById('entryError').textContent = data.error || 'Ошибка';
+        return;
+      }
+      hideAddForm();
+      loadEntries();
+    });
+
+    async function deleteEntry(id) {
+      if(!confirm('Удалить эту запись?')) return;
+      await fetch(`http://localhost:3000/api/entries/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      loadEntries();
+    }
+
+    async function logout() {
+      await fetch('http://localhost:3000/api/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>
