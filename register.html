@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Регистрация</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+    .register-container {
+      width: 320px;
+      margin: 100px auto;
+      padding: 30px;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    .register-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .register-container input[type="text"],
+    .register-container input[type="password"],
+    .register-container input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0 16px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .register-container button {
+      width: 100%;
+      padding: 10px;
+      background: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .register-container button:hover {
+      background: #218838;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .success {
+      color: green;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <h2>Регистрация</h2>
+    <div id="msg" class="error"></div>
+    <form id="registerForm">
+      <input type="text" id="username" placeholder="Имя пользователя" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Пароль" required />
+      <input type="password" id="confirm" placeholder="Повторите пароль" required />
+      <button type="submit">Зарегистрироваться</button>
+    </form>
+  </div>
+  <script>
+    const registerForm = document.getElementById('registerForm');
+    const msg = document.getElementById('msg');
+    registerForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm').value;
+
+      if(password !== confirm) {
+        msg.textContent = 'Пароли не совпадают.';
+        msg.className = 'error';
+        return;
+      }
+      if (!username || !email || !password) {
+        msg.textContent = 'Пожалуйста, заполните все поля.';
+        msg.className = 'error';
+        return;
+      }
+      msg.textContent = 'Регистрация прошла успешно!';
+      msg.className = 'success';
+      // Здесь можно добавить обработку регистрации (отправку данных на сервер)
+    });
+  </script>
+</body>
+</html>
