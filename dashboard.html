@@ -1,0 +1,25 @@
+<!-- ... ваш HTML ... -->
+<script>
+// Получить записи
+async function loadEntries() {
+  const res = await fetch('/api/entries');
+  if(res.status === 401) {
+    window.location.href = '/login.html';
+    return;
+  }
+  const entries = await res.json();
+  // ... построить таблицу ...
+}
+window.onload = loadEntries;
+
+// Добавить запись
+async function addEntry() {
+  // ... собрать данные ...
+  await fetch('/api/entries', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({title, username, password, url})
+  });
+  loadEntries();
+}
+</script>
